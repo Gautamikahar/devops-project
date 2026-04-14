@@ -1,0 +1,14 @@
+<h2>Report Issue</h2>
+
+<input id="title" placeholder="Enter issue" />
+<button onclick="submitIssue()">Submit</button>
+
+<script>
+  function submitIssue() {
+    fetch("http://localhost:3001/issue", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: document.getElementById("title").value }),
+    });
+  }
+</script>

@@ -1,0 +1,38 @@
+local-issue-system/
+│
+├── user-service/
+├── issue-service/
+├── admin-service/
+├── frontend/
+├── docker-compose.yml
+└── README.md
+
+
+
+🔹 Issue Service
+GET → http://localhost:3001/issues
+POST → http://localhost:3001/issue
+
+🔹 User Service
+POST → http://localhost:3002/register
+
+{
+  "username": "test",
+  "password": "123"
+}
+
+POST → http://localhost:3002/login
+
+🔹 Admin Service
+GET → http://localhost:3003/issues
+PUT → http://localhost:3003/issue/1/status
+
+{
+  "status": "resolved"
+}
+
+
+## How to Run
+
+```bash
+docker compose up --build

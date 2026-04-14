@@ -1,0 +1,16 @@
+version: "3"
+services:
+  issue-service:
+    build: ./issue-service
+    ports:
+      - "3001:3001"
+
+  user-service:
+    build: ./user-service
+    ports:
+      - "3002:3002"
+
+  admin-service:
+    build: ./admin-service
+    ports:
+      - "3003:3003"
