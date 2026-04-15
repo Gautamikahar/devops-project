@@ -16,7 +16,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>DevOps Project UI</title>
+  <title>DevOps Project</title>
 </head>
 <body>
 
@@ -24,72 +24,83 @@
 
   <!-- LOGIN -->
   <h2>Login</h2>
-  <input id="username" placeholder="Username" />
-  <input id="password" type="password" placeholder="Password" />
+  <input id="username" placeholder="Enter username" />
+  <br><br>
+  <input id="password" type="password" placeholder="Enter password" />
+  <br><br>
   <button onclick="login()">Login</button>
 
   <hr>
 
   <!-- REPORT ISSUE -->
   <h2>Report Issue</h2>
-  <input id="title" placeholder="Enter issue" />
+  <input id="title" placeholder="Enter issue title" />
+  <br><br>
   <button onclick="submitIssue()">Submit</button>
 
   <hr>
 
-  <!-- UPDATE STATUS -->
+  <!-- UPDATE ISSUE -->
   <h2>Update Issue Status (Admin)</h2>
-  <input id="issueId" placeholder="Issue ID" />
-  <input id="status" placeholder="Status (resolved/pending)" />
+  <input id="id" placeholder="Issue ID" />
+  <br><br>
+  <input id="status" placeholder="resolved / pending" />
+  <br><br>
   <button onclick="updateStatus()">Update</button>
 
   <script>
-    // 🔹 Replace with YOUR actual URLs
-    const USER_SERVICE = "https://devops-project-1c2y.onrender.com";
-    const ISSUE_SERVICE = "https://devops-issue-service.onrender.com";
-    const ADMIN_SERVICE = "https://devops-admin-service.onrender.com";
 
-    // LOGIN
+    // LOGIN FUNCTION
     function login() {
-      fetch(`${USER_SERVICE}/login`, {
+      fetch("https://devops-project-1c2y.onrender.com/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
           username: document.getElementById("username").value,
           password: document.getElementById("password").value
         })
       })
       .then(res => res.text())
-      .then(data => alert(data));
+      .then(data => alert(data))
+      .catch(err => alert("Error: " + err));
     }
 
-    // SUBMIT ISSUE
+    // CREATE ISSUE FUNCTION
     function submitIssue() {
-      fetch(`${ISSUE_SERVICE}/issue`, {
+      fetch("https://devops-issue-service.onrender.com/issue", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
-          title: document.getElementById("title").value,
-          description: "Issue from UI"
+          title: document.getElementById("title").value
         })
       })
       .then(res => res.json())
-      .then(data => alert("Issue Created: " + JSON.stringify(data)));
+      .then(data => alert("Issue created: " + JSON.stringify(data)))
+      .catch(err => alert("Error: " + err));
     }
 
-    // UPDATE STATUS
+    // UPDATE ISSUE STATUS FUNCTION
     function updateStatus() {
-      const id = document.getElementById("issueId").value;
-      fetch(`${ADMIN_SERVICE}/issue/${id}/status`, {
+      const id = document.getElementById("id").value;
+
+      fetch(`https://devops-admin-service.onrender.com/issue/${id}/status`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
           status: document.getElementById("status").value
         })
       })
       .then(res => res.text())
-      .then(data => alert(data));
+      .then(data => alert(data))
+      .catch(err => alert("Error: " + err));
     }
+
   </script>
 
 </body>
