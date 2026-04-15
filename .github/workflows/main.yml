@@ -19,3 +19,9 @@ jobs:
 
       - name: Build Docker
         run: docker build ./issue-service
+
+      - name: Run Tests
+        run: |
+          cd user-service
+          npm install
+          npm test
