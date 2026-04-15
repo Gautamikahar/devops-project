@@ -1,4 +1,4 @@
-<h2>Report Issue</h2>
+<!-- <h2>Report Issue</h2>
 
 <input id="title" placeholder="Enter issue" />
 <button onclick="submitIssue()">Submit</button>
@@ -11,4 +11,86 @@
       body: JSON.stringify({ title: document.getElementById("title").value }),
     });
   }
-</script>
+</script> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DevOps Project UI</title>
+</head>
+<body>
+
+  <h1>🚀 DevOps Project</h1>
+
+  <!-- LOGIN -->
+  <h2>Login</h2>
+  <input id="username" placeholder="Username" />
+  <input id="password" type="password" placeholder="Password" />
+  <button onclick="login()">Login</button>
+
+  <hr>
+
+  <!-- REPORT ISSUE -->
+  <h2>Report Issue</h2>
+  <input id="title" placeholder="Enter issue" />
+  <button onclick="submitIssue()">Submit</button>
+
+  <hr>
+
+  <!-- UPDATE STATUS -->
+  <h2>Update Issue Status (Admin)</h2>
+  <input id="issueId" placeholder="Issue ID" />
+  <input id="status" placeholder="Status (resolved/pending)" />
+  <button onclick="updateStatus()">Update</button>
+
+  <script>
+    // 🔹 Replace with YOUR actual URLs
+    const USER_SERVICE = "https://devops-project-1c2y.onrender.com";
+    const ISSUE_SERVICE = "https://devops-issue-service.onrender.com";
+    const ADMIN_SERVICE = "https://devops-admin-service.onrender.com";
+
+    // LOGIN
+    function login() {
+      fetch(`${USER_SERVICE}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: document.getElementById("username").value,
+          password: document.getElementById("password").value
+        })
+      })
+      .then(res => res.text())
+      .then(data => alert(data));
+    }
+
+    // SUBMIT ISSUE
+    function submitIssue() {
+      fetch(`${ISSUE_SERVICE}/issue`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: document.getElementById("title").value,
+          description: "Issue from UI"
+        })
+      })
+      .then(res => res.json())
+      .then(data => alert("Issue Created: " + JSON.stringify(data)));
+    }
+
+    // UPDATE STATUS
+    function updateStatus() {
+      const id = document.getElementById("issueId").value;
+      fetch(`${ADMIN_SERVICE}/issue/${id}/status`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: document.getElementById("status").value
+        })
+      })
+      .then(res => res.text())
+      .then(data => alert(data));
+    }
+  </script>
+
+</body>
+</html>
