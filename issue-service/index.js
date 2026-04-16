@@ -45,3 +45,19 @@ app.get("/user/:username/issues", (req, res) => {
 app.listen(3001, () => {
   console.log("Issue service running on port 3001");
 });
+
+app.put("/issue/:id/status", (req, res) => {
+  const id = parseInt(req.params.id);
+  const { status } = req.body;
+
+  for (let user in userIssues) {
+    const issue = userIssues[user].find(i => i.id == id);
+
+    if (issue) {
+      issue.status = status;
+      return res.send("Issue status updated");
+    }
+  }
+
+  res.status(404).send("Issue not found");
+});
