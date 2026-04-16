@@ -5,48 +5,73 @@
 
   <style>
     body {
-      font-family: Arial;
       margin: 0;
+      font-family: Arial;
+      display: flex;
       background: #f4f6f9;
     }
 
-    header {
+    /* SIDEBAR */
+    .sidebar {
+      width: 220px;
       background: #2c3e50;
       color: white;
-      padding: 15px;
-      text-align: center;
-      font-size: 24px;
+      height: 100vh;
+      padding: 20px;
     }
 
-    .container {
-      width: 350px;
-      margin: 40px auto;
+    .sidebar h2 {
+      margin-bottom: 20px;
+    }
+
+    .sidebar button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      border: none;
+      background: #34495e;
+      color: white;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .sidebar button:hover {
+      background: #1abc9c;
+    }
+
+    /* MAIN */
+    .main {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .card {
       background: white;
       padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      text-align: center;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+      max-width: 400px;
     }
 
     input {
       width: 90%;
       padding: 10px;
-      margin: 8px;
-      border-radius: 6px;
+      margin: 10px 0;
+      border-radius: 5px;
       border: 1px solid #ccc;
     }
 
-    button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
+    button.action {
       background: #3498db;
       color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
       cursor: pointer;
-      transition: 0.3s;
     }
 
-    button:hover {
+    button.action:hover {
       background: #2980b9;
     }
 
@@ -62,154 +87,162 @@
       padding: 15px;
       border-radius: 8px;
       color: white;
-      font-size: 14px;
       display: none;
-      animation: fadeIn 0.5s;
     }
 
-    .success {
-      background: #2ecc71;
+    .success { background: #2ecc71; }
+    .error { background: #e74c3c; }
+
+    /* LOADER */
+    .loader {
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #3498db;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      display: none;
+      margin: 10px auto;
     }
 
-    .error {
-      background: #e74c3c;
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
+    /* DARK MODE */
+    .dark {
+      background: #1e1e1e;
+      color: white;
+    }
+
+    .dark .card {
+      background: #2c2c2c;
     }
   </style>
 </head>
 
 <body>
 
-<header>DevOps Issue Tracking Dashboard</header>
-
-<div id="popup" class="popup"></div>
-
-<!-- LOGIN -->
-<div id="loginBox" class="container">
-  <h2>Login</h2>
-  <input id="username" placeholder="Username">
-  <input id="password" type="password" placeholder="Password">
-  <button onclick="login()">Login</button>
+<!-- SIDEBAR -->
+<div class="sidebar hidden" id="sidebar">
+  <h2>Dashboard</h2>
+  <button onclick="showSection('issue')">Report Issue</button>
+  <button onclick="showSection('update')">Update Status</button>
+  <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
 </div>
 
-<!-- DASHBOARD -->
-<div id="dashboard" class="hidden">
+<!-- MAIN -->
+<div class="main">
 
-  <div class="container">
-    <h2>Report Issue</h2>
-    <input id="title" placeholder="Enter issue">
-    <button onclick="submitIssue()">Submit</button>
+  <div id="popup" class="popup"></div>
+
+  <!-- LOGIN -->
+  <div id="loginBox" class="card">
+    <h2>Login</h2>
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+    <button class="action" onclick="login()">Login</button>
+    <div class="loader" id="loader"></div>
   </div>
 
-  <div class="container">
+  <!-- ISSUE -->
+  <div id="issue" class="card hidden">
+    <h2>Report Issue</h2>
+    <input id="title" placeholder="Enter issue">
+    <button class="action" onclick="submitIssue()">Submit</button>
+  </div>
+
+  <!-- UPDATE -->
+  <div id="update" class="card hidden">
     <h2>Update Issue Status</h2>
     <input id="issueId" placeholder="Issue ID">
     <input id="status" placeholder="resolved / pending">
-    <button onclick="updateStatus()">Update</button>
+    <button class="action" onclick="updateStatus()">Update</button>
   </div>
 
 </div>
 
 <script>
-  const USER_URL = "https://devops-project-1c2y.onrender.com";
-  const ISSUE_URL = "https://devops-issue-service.onrender.com";
-  const ADMIN_URL = "https://devops-project-admin-service.onrender.com";
+const USER_URL = "https://devops-project-1c2y.onrender.com";
+const ISSUE_URL = "https://devops-issue-service.onrender.com";
+const ADMIN_URL = "https://devops-project-admin-service.onrender.com";
 
-  function showPopup(message, type) {
-    const popup = document.getElementById("popup");
-    popup.innerText = message;
-    popup.className = "popup " + type;
-    popup.style.display = "block";
+function showPopup(msg, type) {
+  const p = document.getElementById("popup");
+  p.innerText = msg;
+  p.className = "popup " + type;
+  p.style.display = "block";
+  setTimeout(() => p.style.display = "none", 3000);
+}
 
-    setTimeout(() => {
-      popup.style.display = "none";
-    }, 3000);
+function showSection(id) {
+  document.getElementById("issue").classList.add("hidden");
+  document.getElementById("update").classList.add("hidden");
+  document.getElementById(id).classList.remove("hidden");
+}
+
+function toggleDarkMode() {
+  document.body.classList.toggle("dark");
+}
+
+async function login() {
+  const loader = document.getElementById("loader");
+  loader.style.display = "block";
+
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  try {
+    const res = await fetch(USER_URL + "/login", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ username, password })
+    });
+
+    const text = await res.text();
+    loader.style.display = "none";
+
+    if (res.ok) {
+      showPopup(text, "success");
+      document.getElementById("loginBox").classList.add("hidden");
+      document.getElementById("sidebar").classList.remove("hidden");
+      showSection("issue");
+    } else {
+      showPopup(text, "error");
+    }
+
+  } catch {
+    loader.style.display = "none";
+    showPopup("Server error!", "error");
   }
+}
 
-  async function login() {
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
+async function submitIssue() {
+  const title = document.getElementById("title").value;
 
-    if (!username || !password) {
-      return showPopup("Fill all fields!", "error");
-    }
+  const res = await fetch(ISSUE_URL + "/issue", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ title })
+  });
 
-    try {
-      const res = await fetch(USER_URL + "/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-      });
+  const data = await res.json();
+  showPopup("Issue Created (ID: " + data.id + ")", "success");
+}
 
-      const text = await res.text();
+async function updateStatus() {
+  const id = document.getElementById("issueId").value;
+  const status = document.getElementById("status").value;
 
-      if (res.ok) {
-        showPopup(text, "success");
+  const res = await fetch(ADMIN_URL + `/issue/${id}/status`, {
+    method: "PUT",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ status })
+  });
 
-        document.getElementById("loginBox").classList.add("hidden");
-        document.getElementById("dashboard").classList.remove("hidden");
-
-      } else {
-        showPopup(text, "error");
-      }
-    } catch {
-      showPopup("Server error!", "error");
-    }
-  }
-
-  async function submitIssue() {
-    const title = document.getElementById("title").value;
-
-    if (!title) {
-      return showPopup("Enter issue title!", "error");
-    }
-
-    try {
-      const res = await fetch(ISSUE_URL + "/issue", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title })
-      });
-
-      const data = await res.json();
-      showPopup("Issue Created (ID: " + data.id + ")", "success");
-
-    } catch {
-      showPopup("Error creating issue!", "error");
-    }
-  }
-
-  async function updateStatus() {
-    const id = document.getElementById("issueId").value;
-    const status = document.getElementById("status").value;
-
-    if (!id || !status) {
-      return showPopup("Fill all fields!", "error");
-    }
-
-    try {
-      const res = await fetch(ADMIN_URL + `/issue/${id}/status`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status })
-      });
-
-      const text = await res.text();
-
-      if (res.ok) {
-        showPopup(text, "success");
-      } else {
-        showPopup(text, "error");
-      }
-
-    } catch {
-      showPopup("Server error!", "error");
-    }
-  }
+  const text = await res.text();
+  showPopup(text, "success");
+}
 </script>
 
 </body>
