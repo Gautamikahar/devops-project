@@ -359,8 +359,9 @@ async function submitIssue() {
 async function updateStatus() {
   const id = document.getElementById("issueId").value;
   const status = document.getElementById("status").value;
+  const username = document.getElementById("username").value;
 
-  const res = await fetch(ADMIN_URL + `/issue/${id}/status`, {
+  const res = await fetch(ISSUE_URL + `/issue/${id}/status`, {
     method: "PUT",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ status })
@@ -369,7 +370,8 @@ async function updateStatus() {
   const text = await res.text();
   showPopup(text, "success");
 
-  loadUserIssues(); // optional refresh
+  // 🔥 refresh updated issues
+  loadUserIssues(username);
 }
 
 // ✅ LOAD USER ISSUES
