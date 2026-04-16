@@ -1,107 +1,179 @@
-<!-- <h2>Report Issue</h2>
-
-<input id="title" placeholder="Enter issue" />
-<button onclick="submitIssue()">Submit</button>
-
-<script>
-  function submitIssue() {
-    fetch("http://localhost:3001/issue", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: document.getElementById("title").value }),
-    });
-  }
-</script> -->
-
 <!DOCTYPE html>
 <html>
 <head>
   <title>DevOps Project</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      width: 350px;
+      margin: 50px auto;
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 8px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background: #00c6ff;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #0072ff;
+      transform: scale(1.05);
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .success { color: lightgreen; }
+    .error { color: #ff6b6b; }
+  </style>
 </head>
+
 <body>
 
-  <h1>🚀 DevOps Project</h1>
+<h1>🚀 DevOps Project</h1>
 
-  <!-- LOGIN -->
+<div class="container">
   <h2>Login</h2>
-  <input id="username" placeholder="Enter username" />
-  <br><br>
-  <input id="password" type="password" placeholder="Enter password" />
-  <br><br>
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
   <button onclick="login()">Login</button>
+  <div id="loginStatus" class="status"></div>
+</div>
 
-  <hr>
-
-  <!-- REPORT ISSUE -->
+<div class="container">
   <h2>Report Issue</h2>
-  <input id="title" placeholder="Enter issue title" />
-  <br><br>
+  <input id="title" placeholder="Enter issue">
   <button onclick="submitIssue()">Submit</button>
+  <div id="issueStatus" class="status"></div>
+</div>
 
-  <hr>
-
-  <!-- UPDATE ISSUE -->
-  <h2>Update Issue Status (Admin)</h2>
-  <input id="id" placeholder="Issue ID" />
-  <br><br>
-  <input id="status" placeholder="resolved / pending" />
-  <br><br>
+<div class="container">
+  <h2>Update Issue Status</h2>
+  <input id="issueId" placeholder="Issue ID">
+  <input id="status" placeholder="resolved / pending">
   <button onclick="updateStatus()">Update</button>
+  <div id="adminStatus" class="status"></div>
+</div>
 
-  <script>
+<script>
+  const USER_URL = "https://devops-project-1c2y.onrender.com";
+  const ISSUE_URL = "https://devops-issue-service.onrender.com";
+  const ADMIN_URL = "https://devops-project-admin-service.onrender.com";
 
-    // LOGIN FUNCTION
-    function login() {
-      fetch("https://devops-project-1c2y.onrender.com/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          username: document.getElementById("username").value,
-          password: document.getElementById("password").value
-        })
-      })
-      .then(res => res.text())
-      .then(data => alert(data))
-      .catch(err => alert("Error: " + err));
+  function showMessage(id, msg, type) {
+    const el = document.getElementById(id);
+    el.innerText = msg;
+    el.className = "status " + type;
+  }
+
+  async function login() {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    if (!username || !password) {
+      return showMessage("loginStatus", "Fill all fields!", "error");
     }
 
-    // CREATE ISSUE FUNCTION
-    function submitIssue() {
-      fetch("https://devops-issue-service.onrender.com/issue", {
+    try {
+      const res = await fetch(USER_URL + "/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          title: document.getElementById("title").value
-        })
-      })
-      .then(res => res.json())
-      .then(data => alert("Issue created: " + JSON.stringify(data)))
-      .catch(err => alert("Error: " + err));
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+
+      const text = await res.text();
+
+      if (res.ok) {
+        showMessage("loginStatus", text, "success");
+      } else {
+        showMessage("loginStatus", text, "error");
+      }
+    } catch (err) {
+      showMessage("loginStatus", "Server error!", "error");
+    }
+  }
+
+  async function submitIssue() {
+    const title = document.getElementById("title").value;
+
+    if (!title) {
+      return showMessage("issueStatus", "Enter issue title!", "error");
     }
 
-    // UPDATE ISSUE STATUS FUNCTION
-    function updateStatus() {
-      const id = document.getElementById("id").value;
+    try {
+      const res = await fetch(ISSUE_URL + "/issue", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title })
+      });
 
-      fetch(`https://devops-project-admin-service.onrender.com/issue/${id}/status`, {
+      const data = await res.json();
+      showMessage("issueStatus", "Issue Created (ID: " + data.id + ")", "success");
+    } catch {
+      showMessage("issueStatus", "Error creating issue!", "error");
+    }
+  }
+
+  async function updateStatus() {
+    const id = document.getElementById("issueId").value;
+    const status = document.getElementById("status").value;
+
+    if (!id || !status) {
+      return showMessage("adminStatus", "Fill all fields!", "error");
+    }
+
+    try {
+      const res = await fetch(ADMIN_URL + `/issue/${id}/status`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          status: document.getElementById("status").value
-        })
-      })
-      .then(res => res.text())
-      .then(data => alert(data))
-      .catch(err => alert("Error: " + err));
-    }
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
+      });
 
-  </script>
+      const text = await res.text();
+
+      if (res.ok) {
+        showMessage("adminStatus", text, "success");
+      } else {
+        showMessage("adminStatus", text, "error");
+      }
+    } catch {
+      showMessage("adminStatus", "Server error!", "error");
+    }
+  }
+</script>
 
 </body>
 </html>
